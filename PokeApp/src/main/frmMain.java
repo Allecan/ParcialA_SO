@@ -251,6 +251,7 @@ public class frmMain extends javax.swing.JFrame {
             dexter.buscarPokemon();
             Mostrador hiloScripts = new Mostrador();
             hiloScripts.start();
+            lblSprites.setText("");
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -262,7 +263,9 @@ public class frmMain extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowOpened
 
     private void btnDeletrearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeletrearActionPerformed
-        //
+//        miPokemon.getName();
+        Deletreo hiloDelt = new Deletreo(miPokemon.getName());
+        hiloDelt.start();
     }//GEN-LAST:event_btnDeletrearActionPerformed
 
     /**
@@ -368,6 +371,30 @@ public class frmMain extends javax.swing.JFrame {
                 Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
                 Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    public class Deletreo extends Thread {
+
+        String nombrePoke = "";
+
+        public Deletreo(String name) {
+            this.nombrePoke = name;
+        }
+
+        @Override
+        public void run() {
+            int tam = nombrePoke.length();
+            int c = 0;
+            while (c < tam) {
+                lblLetra.setText(String.valueOf(nombrePoke.charAt(c)));
+                c += 1;
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
     }
