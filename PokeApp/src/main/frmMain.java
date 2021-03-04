@@ -30,8 +30,6 @@ public class frmMain extends javax.swing.JFrame {
     // objeto que hará uso de la conexión a la API
     Pokemon miPokemon; // objeto de la clase que hace match con los datos de la API
     Reloj reloj = new Reloj(); // objeto para la hora del sistema. ¡No modificar!
-  
-    
 
     /**
      * Creates new form frmMain
@@ -43,7 +41,7 @@ public class frmMain extends javax.swing.JFrame {
     }
 
     // clase que conecta a la API y obtiene los datos del pokémon buscado
- public class Buscador extends Thread {
+    public class Buscador extends Thread {
 
         private static final String POKEMON_API_URL = "https://pokeapi.co/api/v2/pokemon/";
         private final String nombrePokemon;
@@ -80,7 +78,7 @@ public class frmMain extends javax.swing.JFrame {
                 btnBuscar.setEnabled(true);
                 txtNombre.setEnabled(true);
                 btnDeletrear.setEnabled(true);
-                
+
                 lblSprites.setText("");
                 while (true) {
                     URL url;
@@ -105,8 +103,6 @@ public class frmMain extends javax.swing.JFrame {
                     lblSprites.setIcon(new ImageIcon(img));
                     Thread.sleep(1500);
                 }
-
-//                Thread.sleep(2000);
             } catch (IOException ex) {
                 Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
@@ -117,35 +113,9 @@ public class frmMain extends javax.swing.JFrame {
         }
     }
 
-    // clase que mostrará los 4 sprites del pokémon
-    public class Viewer {
-
-        public void mostrarSprites() throws MalformedURLException, IOException, InterruptedException {
-            // obtengo la url del listado de cada uno de los sprites que me dio la API
-            URL url = new URL(miPokemon.getSprites().get("front_default").toString());
-            Image img = ImageIO.read(url);
-            lblSprites.setIcon(new ImageIcon(img));
-            // 1 segundo para cada cambio de sprite
-            Thread.sleep(1000);
-
-            url = new URL(miPokemon.getSprites().get("back_default").toString());
-            img = ImageIO.read(url);
-            lblSprites.setIcon(new ImageIcon(img));
-            Thread.sleep(1000);
-
-            url = new URL(miPokemon.getSprites().get("front_shiny").toString());
-            img = ImageIO.read(url);
-            lblSprites.setIcon(new ImageIcon(img));
-            Thread.sleep(1000);
-
-            url = new URL(miPokemon.getSprites().get("back_shiny").toString());
-            img = ImageIO.read(url);
-            lblSprites.setIcon(new ImageIcon(img));
-            Thread.sleep(1000);
-        }
-    }
-    
-     public class Deletreo extends Thread {
+    // clase para deletrear el nombre del pokemon
+    //<Inserte su código aquí>
+    public class Deletreo extends Thread {
 
         String nombrePoke = "";
 
@@ -166,13 +136,10 @@ public class frmMain extends javax.swing.JFrame {
                     Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-             lblLetra.setText("");
+            lblLetra.setText("");
         }
     }
 
-
-    // clase para deletrear el nombre del pokemon
-    //<Inserte su código aquí>
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -219,7 +186,7 @@ public class frmMain extends javax.swing.JFrame {
 
         lblSprites.setText("Pokémon no encontrado");
         jPanel1.add(lblSprites);
-        lblSprites.setBounds(130, 190, 117, 90);
+        lblSprites.setBounds(122, 190, 140, 90);
 
         lblNombre.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         lblNombre.setText("????");
@@ -233,11 +200,11 @@ public class frmMain extends javax.swing.JFrame {
 
         lblHeight.setText("?? m");
         jPanel1.add(lblHeight);
-        lblHeight.setBounds(480, 240, 90, 14);
+        lblHeight.setBounds(480, 240, 90, 16);
 
         lblWeight.setText("?? kg");
         jPanel1.add(lblWeight);
-        lblWeight.setBounds(580, 240, 100, 14);
+        lblWeight.setBounds(580, 240, 100, 16);
 
         btnDeletrear.setText("Deletrear Pokémon");
         btnDeletrear.addActionListener(new java.awt.event.ActionListener() {
@@ -249,9 +216,10 @@ public class frmMain extends javax.swing.JFrame {
         btnDeletrear.setBounds(440, 440, 260, 70);
 
         lblLetra.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        lblLetra.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblLetra.setText("?");
         jPanel1.add(lblLetra);
-        lblLetra.setBounds(130, 460, 20, 30);
+        lblLetra.setBounds(90, 460, 120, 30);
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Pokedex.jpg"))); // NOI18N
         jPanel1.add(jLabel2);
@@ -311,8 +279,8 @@ public class frmMain extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-  
- 
+        Buscador buscarPoke = new Buscador(txtNombre.getText());
+        buscarPoke.start();
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
@@ -320,7 +288,6 @@ public class frmMain extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowOpened
 
     private void btnDeletrearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeletrearActionPerformed
-//        miPokemon.getName();
         Deletreo hiloDelt = new Deletreo(miPokemon.getName());
         hiloDelt.start();
     }//GEN-LAST:event_btnDeletrearActionPerformed
@@ -383,70 +350,6 @@ public class frmMain extends javax.swing.JFrame {
                 } else {
                     lblSS.setText(String.valueOf(calendario.get(Calendar.SECOND)) + " hrs");
                 }
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-    }
-
-    public class Mostrador extends Thread {
-
-        @Override
-        public void run() {
-
-            try {
-                while (true) {
-                    URL url;
-                    url = new URL(miPokemon.getSprites().get("front_default").toString());
-                    Image img = ImageIO.read(url);
-                    lblSprites.setIcon(new ImageIcon(img));
-                    // 1 segundo para cada cambio de sprite
-                    Thread.sleep(1000);
-
-                    url = new URL(miPokemon.getSprites().get("back_default").toString());
-                    img = ImageIO.read(url);
-                    lblSprites.setIcon(new ImageIcon(img));
-                    Thread.sleep(1000);
-
-                    url = new URL(miPokemon.getSprites().get("front_shiny").toString());
-                    img = ImageIO.read(url);
-                    lblSprites.setIcon(new ImageIcon(img));
-                    Thread.sleep(1000);
-
-                    url = new URL(miPokemon.getSprites().get("back_shiny").toString());
-                    img = ImageIO.read(url);
-                    lblSprites.setIcon(new ImageIcon(img));
-                    Thread.sleep(1000);
-                }
-
-            } catch (MalformedURLException ex) {
-                Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
-    public class Deletreo extends Thread {
-
-        String nombrePoke = "";
-
-        public Deletreo(String name) {
-            this.nombrePoke = name;
-        }
-
-        @Override
-        public void run() {
-            int tam = nombrePoke.length();
-            int c = 0;
-            while (c < tam) {
-                lblLetra.setText(String.valueOf(nombrePoke.charAt(c)));
-                c += 1;
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
