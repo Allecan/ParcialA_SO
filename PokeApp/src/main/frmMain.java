@@ -27,9 +27,11 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 public class frmMain extends javax.swing.JFrame {
 
-    Pokedex dexter; // objeto que hará uso de la conexión a la API
+    // objeto que hará uso de la conexión a la API
     Pokemon miPokemon; // objeto de la clase que hace match con los datos de la API
     Reloj reloj = new Reloj(); // objeto para la hora del sistema. ¡No modificar!
+  
+    
 
     /**
      * Creates new form frmMain
@@ -41,40 +43,77 @@ public class frmMain extends javax.swing.JFrame {
     }
 
     // clase que conecta a la API y obtiene los datos del pokémon buscado
-    public class Pokedex {
+ public class Buscador extends Thread {
 
         private static final String POKEMON_API_URL = "https://pokeapi.co/api/v2/pokemon/";
         private final String nombrePokemon;
 
-        public Pokedex(String pokemonABuscar) {
+        public Buscador(String pokemonABuscar) {
             nombrePokemon = pokemonABuscar;
         }
 
-        public void buscarPokemon() throws IOException, InterruptedException {
-            btnBuscar.setEnabled(false);
-            txtNombre.setEnabled(false);
-            System.out.println("Conectando a la API...");
-            // código para conectarse a la API y descargar los datos.
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .GET()
-                    .header("Accept", "application/json")
-                    .uri(URI.create(POKEMON_API_URL + nombrePokemon))
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        @Override
+        public void run() {
+
+            try {
+                btnBuscar.setEnabled(false);
+                txtNombre.setEnabled(false);
+                System.out.println("Conectando a la API...");
+                // código para conectarse a la API y descargar los datos.
+                HttpClient client = HttpClient.newHttpClient();
+                HttpRequest request = HttpRequest.newBuilder()
+                        .GET()
+                        .header("Accept", "application/json")
+                        .uri(URI.create(POKEMON_API_URL + nombrePokemon))
+                        .build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                System.out.println("¡Conexión exitosa! Descargando datos...");
+                ObjectMapper mapper = new ObjectMapper();
+                // obtener los datos del pokémon en el objeto correspondiente
+                miPokemon = mapper.readValue(response.body(), Pokemon.class);
+                // colocar la información en los label correspondientes
+                lblID.setText("#" + miPokemon.getId());
+                lblNombre.setText(miPokemon.getName());
+                lblHeight.setText(String.valueOf(miPokemon.getHeight()) + " m");
+                lblWeight.setText(String.valueOf(miPokemon.getWeight()) + " kg");
+                System.out.println("¡Datos del Pokémon descargados!");
+                btnBuscar.setEnabled(true);
+                txtNombre.setEnabled(true);
+                btnDeletrear.setEnabled(true);
+                
+                lblSprites.setText("");
+                while (true) {
+                    URL url;
+                    url = new URL(miPokemon.getSprites().get("front_default").toString());
+                    Image img = ImageIO.read(url);
+                    lblSprites.setIcon(new ImageIcon(img));
+                    // 1 segundo para cada cambio de sprite
+                    Thread.sleep(1500);
+
+                    url = new URL(miPokemon.getSprites().get("back_default").toString());
+                    img = ImageIO.read(url);
+                    lblSprites.setIcon(new ImageIcon(img));
+                    Thread.sleep(1500);
+
+                    url = new URL(miPokemon.getSprites().get("front_shiny").toString());
+                    img = ImageIO.read(url);
+                    lblSprites.setIcon(new ImageIcon(img));
+                    Thread.sleep(1500);
+
+                    url = new URL(miPokemon.getSprites().get("back_shiny").toString());
+                    img = ImageIO.read(url);
+                    lblSprites.setIcon(new ImageIcon(img));
+                    Thread.sleep(1500);
+                }
+
+//                Thread.sleep(2000);
+            } catch (IOException ex) {
+                Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
             System.out.println("¡Conexión exitosa! Descargando datos...");
             ObjectMapper mapper = new ObjectMapper();
-            // obtener los datos del pokémon en el objeto correspondiente
-            miPokemon = mapper.readValue(response.body(), Pokemon.class);
-            // colocar la información en los label correspondientes
-            lblID.setText("#" + miPokemon.getId());
-            lblNombre.setText(miPokemon.getName());
-            lblHeight.setText(String.valueOf(miPokemon.getHeight()) + " m");
-            lblWeight.setText(String.valueOf(miPokemon.getWeight()) + " kg");
-            System.out.println("¡Datos del Pokémon descargados!");
-            btnBuscar.setEnabled(true);
-            txtNombre.setEnabled(true);
-            btnDeletrear.setEnabled(true);
         }
     }
 
@@ -105,6 +144,32 @@ public class frmMain extends javax.swing.JFrame {
             Thread.sleep(1000);
         }
     }
+    
+     public class Deletreo extends Thread {
+
+        String nombrePoke = "";
+
+        public Deletreo(String name) {
+            this.nombrePoke = name;
+        }
+
+        @Override
+        public void run() {
+            int tam = nombrePoke.length();
+            int c = 0;
+            while (c < tam) {
+                lblLetra.setText(String.valueOf(nombrePoke.charAt(c)));
+                c += 1;
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+             lblLetra.setText("");
+        }
+    }
+
 
     // clase para deletrear el nombre del pokemon
     //<Inserte su código aquí>
@@ -246,16 +311,8 @@ public class frmMain extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        dexter = new Pokedex(txtNombre.getText());
-        try {
-            dexter.buscarPokemon();
-            Mostrador hiloScripts = new Mostrador();
-            hiloScripts.start();
-            lblSprites.setText("");
-        } catch (IOException | InterruptedException ex) {
-            Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        lblSprites.setText("");
+  
+ 
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
